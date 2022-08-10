@@ -1,9 +1,9 @@
 import axios from '../axios.config'
 
-export const getPosts = async () => {
+export const getPosts = async (params) => {
   return await axios
-    .get('/posts')
-    .then((res) => res.data.data)
+    .get('/posts', { params })
+    .then((res) => res.data)
     .catch((error) => {
       console.log('⚠️ GET POSTS ERROR: ' + error)
       return []
