@@ -3,7 +3,7 @@ import axios from '../axios.config'
 export const getPosts = async () => {
   return await axios
     .get('/posts')
-    .then((res) => res.data.post)
+    .then((res) => res.data.data)
     .catch((error) => {
       console.log('⚠️ GET POSTS ERROR: ' + error)
       return []
