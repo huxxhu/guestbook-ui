@@ -23,6 +23,7 @@ const Form = () => {
     name: '',
     content: '',
   })
+  const [isLoading, setIsLoading] = useState(false)
   const handleChange = (e) => {
     const newData = { ...data }
     newData[e.target.name] = e.target.value
@@ -30,18 +31,20 @@ const Form = () => {
   }
   const handleSubmit = (e) => {
     e.preventDefault()
+    setIsLoading(true)
 
     // TODO: 驗證
-
     console.log(data)
+
     const { name, content } = data
     addPost({
       name,
       content,
+    }).then(() => {
+      // Redirect
+      navigate('/')
+      setIsLoading(false)
     })
-    // TODO: Loading
-    // redirect
-    navigate('/')
   }
   return (
     <Container>
@@ -71,10 +74,12 @@ const Form = () => {
             value={data.content}
             name='content'
             placeholder='想對窩說什ㄇ～ ｡:.ﾟヽ(*´∀`)ﾉﾟ.:｡'
+            maxLength='200'
+            rows='6'
           />
         </FormControl>
         <Box mt='6' textAlign='center'>
-          <Button type='submit' leftIcon='🚀' colorScheme='yellow'>
+          <Button isLoading={isLoading} type='submit' leftIcon='🚀' colorScheme='yellow'>
             送出
           </Button>
         </Box>
