@@ -57,7 +57,7 @@ const Form = () => {
         as='form'
         onSubmit={(e) => handleSubmit(e)}
         bg='white'
-        boxShadow='lg'
+        boxShadow='lg.green'
         borderRadius='md'
         p={6}
         borderLeftWidth='4px'
@@ -77,6 +77,7 @@ const Form = () => {
             maxLength='200'
             rows='6'
           />
+          <FormHelperText textAlign='right'>字數限 200 字</FormHelperText>
         </FormControl>
         <Box mt='6' textAlign='center'>
           <Button isLoading={isLoading} type='submit' leftIcon='🚀' colorScheme='yellow'>
