@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link as RouteLink } from 'react-router-dom'
-import { Link, Text, Container, Divider, HStack, VStack, Box, Button, Icon } from '@chakra-ui/react'
+import { Link, Text, Container, Divider, HStack, VStack, Box, Button, Icon, Spinner } from '@chakra-ui/react'
 import { FaPencilAlt } from 'react-icons/fa'
 
 import { getPosts } from '../../api/posts'
@@ -23,19 +23,24 @@ const PostCard = ({ name, content, createdAt, ip, ...props }) => {
 const Post = () => {
   const [postData, setPostData] = useState([])
   const [page, setPage] = useState(1)
-  const getData = () => {
-    getPosts({ page, limit: 10 }).then((data) => {
-      setPostData(data)
-    })
-  }
+  const [isLoading, setIsLoading] = useState(false)
   useEffect(() => {
-    getData()
+    setIsLoading(true)
+
+    getPosts({ page, limit: 10 })
+      .then((data) => {
+        setPostData(data)
+      })
+      .then(() => setIsLoading(false))
+
+    window.scrollTo(0, 0)
   }, [page])
   const pageHandler = (index) => {
     setPage(index + 1)
   }
   return (
     <Container>
+      <Spinner opacity={isLoading ? '1' : '0'} size='xl' pointerEvents='none' position='fixed' top='50%' left='50%' />
       <Box textAlign='center' mb='6'>
         <Link as={RouteLink} to='/form'>
           <Button leftIcon={<Icon as={FaPencilAlt} />} colorScheme='yellow'>
@@ -43,7 +48,7 @@ const Post = () => {
           </Button>
         </Link>
       </Box>
-      <VStack spacing={6} align='stretch'>
+      <VStack spacing={6} align='stretch' opacity={isLoading ? '0.4' : '1'} transition='opacity 0.3s'>
         {postData.data?.length > 0 &&
           postData.data?.map((data) => (
             <PostCard key={data._id} name={data.name} content={data.content} createdAt={data.createdAt} ip={data.ip} />
@@ -57,6 +62,7 @@ const Post = () => {
               variant='outline'
               size='sm'
               isActive={page === index + 1}
+              pointerEvents={page === index + 1 ? 'none' : 'auto'}
               key={'page' + index}
               onClick={() => pageHandler(index)}
             >
