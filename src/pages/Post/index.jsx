@@ -6,6 +6,7 @@ import { FaPencilAlt } from 'react-icons/fa'
 import { getPosts } from '../../api/posts'
 
 const PostCard = ({ name, content, createdAt, ip, ...props }) => {
+  const dateFormat = new Date(createdAt).toLocaleString('zh-TW')
   return (
     <Box borderWidth='1px' borderColor='green.300' borderRadius='md' p={4} bg='green.100' overflow='hidden'>
       <Text fontSize='sm' mb='2' fontWeight='600' _before={{ content: `"♥"`, marginRight: '0.4em' }}>
@@ -14,7 +15,7 @@ const PostCard = ({ name, content, createdAt, ip, ...props }) => {
       <Text whiteSpace='pre-line'>{content}</Text>
       <Divider my='2' borderColor='green.400' borderStyle='dashed' />
       <Text fontSize='xs' color='gray.700' align='right'>
-        {createdAt} - 來自: {ip}
+        {dateFormat} - 來自: {ip}
       </Text>
     </Box>
   )
