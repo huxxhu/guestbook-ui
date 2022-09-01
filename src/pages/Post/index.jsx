@@ -8,7 +8,7 @@ import { getPosts } from '../../api/posts'
 const PostCard = ({ name, content, createdAt, ip, reply, ...props }) => {
   const dateFormat = new Date(createdAt).toLocaleString('zh-TW')
   return (
-    <Box borderRadius='2rem' p={5} color='gray.900' bg='white' boxShadow='lg.green'>
+    <Box borderRadius='2rem' p={5} color='gray.900' bg='white' boxShadow='solid'>
       <Text
         fontSize='sm'
         mb='4'
@@ -64,7 +64,7 @@ const Post = () => {
       <Spinner opacity={isLoading ? '1' : '0'} size='xl' pointerEvents='none' position='fixed' top='50%' left='50%' />
       <Box textAlign='center' mb='6'>
         <Link as={RouteLink} to='/form'>
-          <Button leftIcon={<Icon as={FaPencilAlt} />} colorScheme='yellow'>
+          <Button leftIcon={<Icon as={FaPencilAlt} className='flash' />} colorScheme='yellow'>
             我要留言
           </Button>
         </Link>
@@ -86,8 +86,7 @@ const Post = () => {
         <HStack justify='center' mt='6'>
           {[...Array(postData.pagination?.pageTotal)].map((data, index) => (
             <Button
-              colorScheme='yellow'
-              variant='outline'
+              colorScheme='green'
               size='sm'
               isActive={page === index + 1}
               pointerEvents={page === index + 1 ? 'none' : 'auto'}

@@ -14,7 +14,7 @@ import {
   Input,
   Textarea,
 } from '@chakra-ui/react'
-import { FaPencilAlt } from 'react-icons/fa'
+import { FaHeadSideCough } from 'react-icons/fa'
 import { addPost } from '../../api/posts'
 
 const Form = () => {
@@ -49,20 +49,11 @@ const Form = () => {
   return (
     <Container>
       <Heading as='h2' size='md' noOfLines={1} textAlign='center' mb='6'>
-        <marquee scrollamount='15' direction='right' behavior='alternate'>
+        <marquee className='flash' scrollamount='15' direction='right' behavior='alternate'>
           ～～ 卍★㊣ 快.留言ㄛ ㊣☆卍 ～～
         </marquee>
       </Heading>
-      <Box
-        as='form'
-        onSubmit={(e) => handleSubmit(e)}
-        bg='white'
-        boxShadow='lg.green'
-        borderRadius='md'
-        p={6}
-        borderLeftWidth='4px'
-        borderColor='green.400'
-      >
+      <Box as='form' onSubmit={(e) => handleSubmit(e)} bg='white' boxShadow='solid' borderRadius='2rem' p={6}>
         <FormControl isRequired mb='4'>
           <FormLabel>暱稱</FormLabel>
           <Input onChange={handleChange} value={data.name} name='name' placeholder='不要亂寫ㄛ！' />
@@ -80,7 +71,12 @@ const Form = () => {
           <FormHelperText textAlign='right'>字數限 200 字</FormHelperText>
         </FormControl>
         <Box mt='6' textAlign='center'>
-          <Button isLoading={isLoading} type='submit' leftIcon='🚀' colorScheme='yellow'>
+          <Button
+            isLoading={isLoading}
+            type='submit'
+            leftIcon={<Icon as={FaHeadSideCough} className='flash' />}
+            colorScheme='yellow'
+          >
             送出
           </Button>
         </Box>
