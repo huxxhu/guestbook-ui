@@ -1,12 +1,46 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import { Link as RouteLink } from 'react-router-dom'
-import { Link, Text, Container, Divider, HStack, VStack, Box, Button, Icon, Spinner } from '@chakra-ui/react'
+import {
+  Link,
+  Text,
+  Container,
+  Divider,
+  HStack,
+  VStack,
+  Box,
+  Button,
+  Icon,
+  Spinner,
+  Textarea,
+  Input,
+  Flex,
+} from '@chakra-ui/react'
 import { FaPencilAlt } from 'react-icons/fa'
+import { FiLogOut } from 'react-icons/fi'
 
-import { getPosts } from '../../api/posts'
+import { getPosts, replyPost } from '../../api/posts'
+import { login } from '../../api/users'
 
-const PostCard = ({ name, content, createdAt, ip, reply, ...props }) => {
+import { UserContext, UserProvider } from '../../contexts/UserContext'
+
+const PostCard = ({ id, name, content, createdAt, ip, reply, page, setPostData, setIsLoading, ...props }) => {
+  const { isLogin, token } = useContext(UserContext)
   const dateFormat = new Date(createdAt).toLocaleString('zh-TW')
+  const [replyContent, setReplyContent] = useState(reply?.content || '')
+  const replyChangeHandler = (e) => {
+    setReplyContent(e.target.value)
+  }
+  const replyClickHandler = () => {
+    replyPost({ data: { content: replyContent }, id, token }).then((data) => {
+      setIsLoading(true)
+      getPosts({ page, limit: 10 })
+        .then((data) => {
+          setPostData(data)
+        })
+        .then(() => setIsLoading(false))
+    })
+  }
+
   return (
     <Box borderRadius='2rem' p={5} color='gray.900' bg='white' boxShadow='solid'>
       <Text
@@ -38,9 +72,65 @@ const PostCard = ({ name, content, createdAt, ip, reply, ...props }) => {
           <Text whiteSpace='pre-line'>{reply.content}</Text>
         </Box>
       )}
+      {
+        <>
+          {isLogin && (
+            <Box textAlign='center' mt='2'>
+              <Textarea defaultValue={replyContent} mb='2' onChange={replyChangeHandler}></Textarea>
+              <Button size='xs' colorScheme='yellow' onClick={replyClickHandler}>
+                回覆
+              </Button>
+            </Box>
+          )}
+        </>
+      }
     </Box>
   )
 }
+
+const LoginButton = () => {
+  const { isLogin, setIsLogin, setToken } = useContext(UserContext)
+  const [focus, setFocus] = useState(false)
+  const [password, setPassword] = useState('')
+  const changeHandler = (e) => {
+    setPassword(e.target.value)
+  }
+  const clickHandler = () => {
+    if (!focus) setFocus(true)
+    else if (password === '') setFocus(false)
+    else {
+      login({ password }).then((data) => {
+        if (data) {
+          setIsLogin(true)
+          setToken(data.token)
+        }
+
+        setPassword('')
+        setFocus(false)
+      })
+    }
+  }
+  return (
+    <Flex pos='fixed' right='0' zIndex={2} bg='gray.100'>
+      {isLogin && (
+        <Button
+          onClick={() => {
+            setIsLogin(false)
+          }}
+        >
+          <FiLogOut />
+        </Button>
+      )}
+      {!isLogin && (
+        <>
+          <Button onClick={clickHandler}>🔑</Button>
+          {focus && <Input variant='filled' placeholder='我的密碼' defaultValue={password} onChange={changeHandler} />}
+        </>
+      )}
+    </Flex>
+  )
+}
+
 const Post = () => {
   const [postData, setPostData] = useState([])
   const [page, setPage] = useState(1)
@@ -60,45 +150,52 @@ const Post = () => {
     setPage(index + 1)
   }
   return (
-    <Container>
-      <Spinner opacity={isLoading ? '1' : '0'} size='xl' pointerEvents='none' position='fixed' top='50%' left='50%' />
-      <Box textAlign='center' mb='6'>
-        <Link as={RouteLink} to='/form'>
-          <Button leftIcon={<Icon as={FaPencilAlt} className='flash' />} colorScheme='yellow'>
-            我要留言
-          </Button>
-        </Link>
-      </Box>
-      <VStack spacing={6} align='stretch' opacity={isLoading ? '0.4' : '1'} transition='opacity 0.3s'>
-        {postData.data?.length > 0 &&
-          postData.data?.map((data) => (
-            <PostCard
-              key={data._id}
-              name={data.name}
-              content={data.content}
-              createdAt={data.createdAt}
-              ip={data.ip}
-              reply={data.reply}
-            />
-          ))}
-      </VStack>
-      {postData.pagination?.pageTotal > 1 && (
-        <HStack justify='center' mt='6'>
-          {[...Array(postData.pagination?.pageTotal)].map((data, index) => (
-            <Button
-              colorScheme='green'
-              size='sm'
-              isActive={page === index + 1}
-              pointerEvents={page === index + 1 ? 'none' : 'auto'}
-              key={'page' + index}
-              onClick={() => pageHandler(index)}
-            >
-              {index + 1}
+    <UserProvider>
+      <LoginButton />
+      <Container>
+        <Spinner opacity={isLoading ? '1' : '0'} size='xl' pointerEvents='none' position='fixed' top='50%' left='50%' />
+        <Box textAlign='center' mb='6'>
+          <Link as={RouteLink} to='/form'>
+            <Button leftIcon={<Icon as={FaPencilAlt} className='flash' />} colorScheme='yellow'>
+              我要留言
             </Button>
-          ))}
-        </HStack>
-      )}
-    </Container>
+          </Link>
+        </Box>
+        <VStack spacing={6} align='stretch' opacity={isLoading ? '0.4' : '1'} transition='opacity 0.3s'>
+          {postData.data?.length > 0 &&
+            postData.data?.map((data) => (
+              <PostCard
+                key={data._id}
+                id={data._id}
+                name={data.name}
+                content={data.content}
+                createdAt={data.createdAt}
+                ip={data.ip}
+                reply={data.reply}
+                page={page}
+                setPostData={setPostData}
+                setIsLoading={setIsLoading}
+              />
+            ))}
+        </VStack>
+        {postData.pagination?.pageTotal > 1 && (
+          <HStack justify='center' mt='6'>
+            {[...Array(postData.pagination?.pageTotal)].map((data, index) => (
+              <Button
+                colorScheme='green'
+                size='sm'
+                isActive={page === index + 1}
+                pointerEvents={page === index + 1 ? 'none' : 'auto'}
+                key={'page' + index}
+                onClick={() => pageHandler(index)}
+              >
+                {index + 1}
+              </Button>
+            ))}
+          </HStack>
+        )}
+      </Container>
+    </UserProvider>
   )
 }
 

@@ -18,3 +18,16 @@ export const addPost = async (data) => {
       console.log(error)
     })
 }
+
+export const replyPost = async ({ data, id, token }) => {
+  return await axios
+    .patch(`/admin/post/${id}/reply`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((res) => res)
+    .catch((error) => {
+      console.log(error)
+    })
+}
