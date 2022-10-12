@@ -1,10 +1,9 @@
-import { useEffect, useState, useContext } from 'react'
+import { useEffect, useState, useContext, useRef } from 'react'
 import { Link as RouteLink } from 'react-router-dom'
 import {
   Link,
   Text,
   Container,
-  Divider,
   HStack,
   VStack,
   Box,
@@ -16,7 +15,6 @@ import {
   Flex,
 } from '@chakra-ui/react'
 import { FaPencilAlt } from 'react-icons/fa'
-import { FiLogOut } from 'react-icons/fi'
 
 import { getPosts, replyPost } from '../../api/posts'
 import { login } from '../../api/users'
@@ -91,11 +89,9 @@ const PostCard = ({ id, name, content, createdAt, ip, reply, page, setPostData, 
 const LoginButton = () => {
   const { isLogin, setIsLogin, setToken } = useContext(UserContext)
   const [focus, setFocus] = useState(false)
-  const [password, setPassword] = useState('')
-  const changeHandler = (e) => {
-    setPassword(e.target.value)
-  }
+  const passwordRef = useRef()
   const clickHandler = () => {
+    let password = passwordRef.current.value
     if (!focus) setFocus(true)
     else if (password === '') setFocus(false)
     else {
@@ -104,29 +100,30 @@ const LoginButton = () => {
           setIsLogin(true)
           setToken(data.token)
         }
-
-        setPassword('')
         setFocus(false)
       })
     }
   }
   return (
     <Flex pos='fixed' right='0' zIndex={2} bg='gray.100'>
-      {isLogin && (
-        <Button
-          onClick={() => {
-            setIsLogin(false)
-          }}
-        >
-          <FiLogOut />
-        </Button>
-      )}
-      {!isLogin && (
-        <>
-          <Button onClick={clickHandler}>🔑</Button>
-          {focus && <Input variant='filled' placeholder='我的密碼' defaultValue={password} onChange={changeHandler} />}
-        </>
-      )}
+      <Button
+        onClick={
+          isLogin
+            ? () => {
+                setIsLogin(false)
+              }
+            : clickHandler
+        }
+      >
+        {isLogin ? '🔙' : '🔑'}
+      </Button>
+      <Input
+        display={focus ? 'block' : 'none'}
+        variant='filled'
+        placeholder='我的密碼'
+        ref={passwordRef}
+        type='password'
+      />
     </Flex>
   )
 }
