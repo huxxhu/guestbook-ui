@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Link as RouteLink } from 'react-router-dom'
 import {
   Link,
@@ -19,10 +19,10 @@ import { FaPencilAlt } from 'react-icons/fa'
 import { getPosts, replyPost } from '../../api/posts'
 import { login } from '../../api/users'
 
-import { UserContext, UserProvider } from '../../contexts/UserContext'
+import { useUser, UserProvider } from '../../contexts/UserContext'
 
 const PostCard = ({ id, name, content, createdAt, ip, reply, page, setPostData, setIsLoading, ...props }) => {
-  const { isLogin, token } = useContext(UserContext)
+  const { isLogin, token } = useUser()
   const dateFormat = new Date(createdAt).toLocaleString('zh-TW')
   const [replyContent, setReplyContent] = useState(reply?.content || '')
   const replyChangeHandler = (e) => {
@@ -87,7 +87,7 @@ const PostCard = ({ id, name, content, createdAt, ip, reply, page, setPostData, 
 }
 
 const LoginButton = () => {
-  const { isLogin, setIsLogin, setToken } = useContext(UserContext)
+  const { isLogin, setIsLogin, setToken } = useUser()
   const [focus, setFocus] = useState(false)
   const passwordRef = useRef()
   const clickHandler = () => {
